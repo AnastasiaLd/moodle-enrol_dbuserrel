@@ -17,13 +17,6 @@ class enrol_dbuserrel_plugin extends enrol_plugin {
 
     var $log;
 	
-	/**
-     * Does this plugin assign protected roles are can they be manually removed?
-     * @return bool - false means anybody may tweak roles, it does not use itemid and component when assigning roles
-     */
-    public function roles_protected() {
-        return false;
-    }
 
     /**
      * Is it possible to delete enrol instance via standard UI?
@@ -54,7 +47,6 @@ class enrol_dbuserrel_plugin extends enrol_plugin {
      * @return bool - true means user with 'enrol/xxx:unenrol' may unenrol this user, false means nobody may touch this user enrolment
      */
     public function allow_unenrol_user(stdClass $instance, stdClass $ue) {
-      
         return true;
     }
 	
@@ -131,7 +123,7 @@ function setup_enrolments($verbose = false, &$user=null) {
 		// Unique identifier of the role assignment
         $uniqfield = $DB->sql_concat("r.$flocalrole", "'|'", "u1.$flocalsubject", "'|'", "u2.$flocalobject");
 		
-		// Query to retreive all user role assignment from Moodle
+		// Query to retreive all user role assignment from Moodle that were made using this plugin only
         $sql = "SELECT $uniqfield AS uniq,
             ra.*, r.{$flocalrole} ,
             u1.{$flocalsubject} AS subjectid,
@@ -233,7 +225,10 @@ function setup_enrolments($verbose = false, &$user=null) {
 				}
 
 				// MOODLE 1.X => role_assign($roles[$row->{$fremoterole}]->id, $subjectusers[$row->{$fremotesubject}], 0, $context->id, 0, 0, 0, 'dbuserrel');
-				// MOODLE 2.X => role_assign($roleid, $userid, $contextid, $component = '', $itemid = 0, $timemodified = '') 
+				// MOODLE 2.X => role_assign($roleid, $userid, $contextid, $component = '', $itemid = 0, $timemodified = '')
+				// This way of role assignment using the component name means that we cannot manually unassign this from UI
+				//  We can only unassign using this same plugin. The unassign role statement is below and the same component name is used
+				//
 				role_assign($roles[$row[$fremoterole]]->id, $subjectusers[$row[$fremotesubject_proper]], $context->id, 'enrol_dbuserrel', 0, '');
 
             }

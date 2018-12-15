@@ -49,6 +49,11 @@ class enrol_dbuserrel_plugin extends enrol_plugin {
       
         return true;
     }
+	
+	public function allow_unenrol(stdClass $instance) {
+        // Simply making this function return true will render the unenrolment action in the participants list if the user has the 'enrol/pluginname:unenrol' capability.
+        return true;
+    }
 
 /*
  * MAIN FUNCTION

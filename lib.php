@@ -45,7 +45,7 @@ class enrol_dbuserrel_plugin extends enrol_plugin {
      *
      * @return bool - true means user with 'enrol/xxx:unenrol' may unenrol this user, false means nobody may touch this user enrolment
      */
-    public function allow_unenrol_user(stdClass $instance) {
+    public function allow_unenrol_user(stdClass $instance, stdClass $ue) {
       
         return true;
     }

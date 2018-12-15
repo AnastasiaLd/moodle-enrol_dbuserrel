@@ -16,6 +16,14 @@ defined('MOODLE_INTERNAL') || die();
 class enrol_dbuserrel_plugin extends enrol_plugin {
 
     var $log;
+	
+	/**
+     * Does this plugin assign protected roles are can they be manually removed?
+     * @return bool - false means anybody may tweak roles, it does not use itemid and component when assigning roles
+     */
+    public function roles_protected() {
+        return false;
+    }
 
     /**
      * Is it possible to delete enrol instance via standard UI?

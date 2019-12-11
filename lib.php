@@ -119,8 +119,6 @@ function setup_enrolments($verbose = false, &$user=null) {
             FROM
                 {$dbtable}
             WHERE
-                ({$fremoteparent} = $parentfield OR {$fremotestudent} = $studentfield)
-                AND
                   setid = '{$currentacademicyear}'
                 AND
                   {$fremoteparent} != 'NOT ALLOCATED'";

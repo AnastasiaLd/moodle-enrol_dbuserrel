@@ -342,15 +342,4 @@ function enrol_disconnect($extdb) {
         }
     }
 
-  /**
-   * Forces synchronisation of user enrolments with external database,
-   * does not create new courses.
-   *
-   * @param stdClass $user user record
-   * @return void
-   *
-  public function sync_user_enrolments($user) {
-    $this->setup_enrolments(false, $user);
-  }
-  */
 } // end of class

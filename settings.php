@@ -37,15 +37,15 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_heading('enrol_dbuserrel_remoteheader', get_string('remote_fields_mapping', 'enrol_dbuserrel'), ''));
 
-    $settings->add(new admin_setting_configtext('enrol_dbuserrel/localsubjectuserfield', get_string('localsubjectuserfield', 'enrol_dbuserrel'), get_string('localsubjectuserfield_desc', 'enrol_dbuserrel'), 'username'));
+    $settings->add(new admin_setting_configtext('enrol_dbuserrel/localparentuserfield', get_string('localparentuserfield', 'enrol_dbuserrel'), get_string('localparentuserfield_desc', 'enrol_dbuserrel'), 'username'));
 
-    $settings->add(new admin_setting_configtext('enrol_dbuserrel/localobjectuserfield', get_string('localobjectuserfield', 'enrol_dbuserrel'), get_string('localobjectuserfield_desc', 'enrol_dbuserrel'), 'username'));		
+    $settings->add(new admin_setting_configtext('enrol_dbuserrel/localstudentuserfield', get_string('localstudentuserfield', 'enrol_dbuserrel'), get_string('localstudentuserfield_desc', 'enrol_dbuserrel'), 'username'));		
 
     $settings->add(new admin_setting_configtext('enrol_dbuserrel/localrolefield', get_string('localrolefield', 'enrol_dbuserrel'), get_string('localrolefield_desc', 'enrol_dbuserrel'), 'shortname'));	
 
-    $settings->add(new admin_setting_configtext('enrol_dbuserrel/remotesubjectuserfield', get_string('remotesubjectuserfield', 'enrol_dbuserrel'), get_string('remotesubjectuserfield_desc', 'enrol_dbuserrel'), ''));	
+    $settings->add(new admin_setting_configtext('enrol_dbuserrel/remoteparentuserfield', get_string('remoteparentuserfield', 'enrol_dbuserrel'), get_string('remoteparentuserfield_desc', 'enrol_dbuserrel'), ''));	
 
-    $settings->add(new admin_setting_configtext('enrol_dbuserrel/remoteobjectuserfield', get_string('remoteobjectuserfield', 'enrol_dbuserrel'), get_string('remoteobjectuserfield_desc', 'enrol_dbuserrel'), ''));		
+    $settings->add(new admin_setting_configtext('enrol_dbuserrel/remotestudentuserfield', get_string('remotestudentuserfield', 'enrol_dbuserrel'), get_string('remotestudentuserfield_desc', 'enrol_dbuserrel'), ''));		
 
     $settings->add(new admin_setting_configtext('enrol_dbuserrel/remoterolefield', get_string('remoterolefield', 'enrol_dbuserrel'), get_string('remoterolefield_desc', 'enrol_dbuserrel'), ''));
 }

@@ -21,7 +21,7 @@ class enrol_dbuserrel_plugin extends enrol_plugin {
     /**
      * Is it possible to delete enrol instance via standard UI?
      *
-     * @param object $instance
+     * @param student $instance
      * @return bool
      */
     // the function below had been deprecated and replaced with new function name can_delete_instance
@@ -87,14 +87,14 @@ function setup_enrolments($verbose = false, &$user=null) {
     raise_memory_limit(MEMORY_HUGE);
 
     // Store the field values in some shorter variable names to ease reading of the code.
-    $flocalsubject  = strtolower($this->get_config('localsubjectuserfield'));
-    $flocalobject   = strtolower($this->get_config('localobjectuserfield'));
+    $flocalparent  = strtolower($this->get_config('localparentuserfield'));
+    $flocalstudent   = strtolower($this->get_config('localstudentuserfield'));
     $flocalrole     = strtolower($this->get_config('localrolefield'));
-    $fremotesubject = strtolower($this->get_config('remotesubjectuserfield')); 
-	$fremotesubject_proper = $this->get_config('remotesubjectuserfield'); 
+    $fremoteparent = strtolower($this->get_config('remoteparentuserfield')); 
+	$fremoteparent_proper = $this->get_config('remoteparentuserfield'); 
 	//strtolower was messing up column references, so use "proper" casing and replace usages below that refer to columns (generally $row['whatever'])
-	$fremoteobject_proper  = $this->get_config('remoteobjectuserfield');
-    $fremoteobject  = strtolower($this->get_config('remoteobjectuserfield'));
+	$fremotestudent_proper  = $this->get_config('remotestudentuserfield');
+    $fremotestudent  = strtolower($this->get_config('remotestudentuserfield'));
     $fremoterole    = strtolower($this->get_config('remoterolefield'));
     $dbtable        = $this->get_config('remoteenroltable');
 	
@@ -102,12 +102,12 @@ function setup_enrolments($verbose = false, &$user=null) {
 
     // TODO: Ensure that specifying a user works correctly
     if ($user) {
-        $subjectfield = $extdb->quote($user->{$flocalsubject});
-        $objectfield = $extdb->quote($user->{$flocalobject});
+        $parentfield = $extdb->quote($user->{$flocalparent});
+        $studentfield = $extdb->quote($user->{$flocalstudent});
 
         $sql = "SELECT * FROM {$dbtable}
-            WHERE {$fremotesubject} = $subjectfield
-            OR {$fremoteobject} = $objectfield";
+            WHERE {$fremoteparent} = $parentfield
+            OR {$fremotestudent} = $studentfield";
     } else {
 		// Get all entries from source(external) table
         $sql = "SELECT * FROM {$dbtable}";
@@ -121,13 +121,13 @@ function setup_enrolments($verbose = false, &$user=null) {
         }
 
 		// Unique identifier of the role assignment
-        $uniqfield = $DB->sql_concat("r.$flocalrole", "'|'", "u1.$flocalsubject", "'|'", "u2.$flocalobject");
+        $uniqfield = $DB->sql_concat("r.$flocalrole", "'|'", "u1.$flocalparent", "'|'", "u2.$flocalstudent");
 		
 		// Query to retreive all user role assignment from Moodle that were made using this plugin only
         $sql = "SELECT $uniqfield AS uniq,
             ra.*, r.{$flocalrole} ,
-            u1.{$flocalsubject} AS subjectid,
-            u2.{$flocalobject} AS objectid
+            u1.{$flocalparent} AS parentid,
+            u2.{$flocalstudent} AS studentid
             FROM {role_assignments} ra
             JOIN {role} r ON ra.roleid = r.id
             JOIN {context} c ON c.id = ra.contextid
@@ -157,8 +157,8 @@ function setup_enrolments($verbose = false, &$user=null) {
 	        mtrace(sizeof($roles)." role entries found in Moodle DB");
             }
 
-            $subjectusers = array(); // cache of mapping of localsubjectuserfield to mdl_user.id (for get_context_instance)
-            $objectusers = array(); // cache of mapping of localsubjectuserfield to mdl_user.id (for get_context_instance)
+            $parentusers = array(); // cache of mapping of localparentuserfield to mdl_user.id (for get_context_instance)
+            $studentusers = array(); // cache of mapping of localparentuserfield to mdl_user.id (for get_context_instance)
             $contexts = array(); // cache
 
             $rels = array();
@@ -174,9 +174,9 @@ function setup_enrolments($verbose = false, &$user=null) {
                     mtrace("Role:".$row[$fremoterole]);
                 }
 
-		// TODO: Handle coma seperated values in remoteobject field
+		// TODO: Handle coma seperated values in remotestudent field
                 // either we're assigning ON the current user, or TO the current user
-                $key = $row[$fremoterole] . '|' . $row[$fremotesubject] . '|' . $row[$fremoteobject];
+                $key = $row[$fremoterole] . '|' . $row[$fremoteparent] . '|' . $row[$fremotestudent];
 				
 				// Check if the role is already assigned
                 if (array_key_exists($key, $existing)) {
@@ -193,43 +193,43 @@ function setup_enrolments($verbose = false, &$user=null) {
                     continue;
                 }
 				
-				// Fill the subject array
-                if (!array_key_exists($row[$fremotesubject_proper], $subjectusers)) {
-                    $subjectusers[$row[$fremotesubject_proper]] = $DB->get_field('user', 'id', array($flocalsubject => $row[$fremotesubject_proper]) );
+				// Fill the parent array
+                if (!array_key_exists($row[$fremoteparent_proper], $parentusers)) {
+                    $parentusers[$row[$fremoteparent_proper]] = $DB->get_field('user', 'id', array($flocalparent => $row[$fremoteparent_proper]) );
                 }
 				
-				// Check if subject exist in Moodle
-                if ($subjectusers[$row[$fremotesubject_proper]] == false) {
-                    error_log("Warning: [" . $row[$fremotesubject_proper] . "] couldn't find subject user -- skipping $key");
+				// Check if parent exist in Moodle
+                if ($parentusers[$row[$fremoteparent_proper]] == false) {
+                    error_log("Warning: [" . $row[$fremoteparent_proper] . "] couldn't find parent user -- skipping $key");
                     // couldn't find user, skip
                     continue;
                 }
 
-				// Fill the object array
-                if (!array_key_exists($row[$fremoteobject_proper], $objectusers)) {
-                    $objectusers[$row[$fremoteobject_proper]] = $DB->get_field('user', 'id', array($flocalobject => $row[$fremoteobject_proper]) );
+				// Fill the student array
+                if (!array_key_exists($row[$fremotestudent_proper], $studentusers)) {
+                    $studentusers[$row[$fremotestudent_proper]] = $DB->get_field('user', 'id', array($flocalstudent => $row[$fremotestudent_proper]) );
                 }
 				
-				// Check if object exist in Moodle
-                if ($objectusers[$row[$fremoteobject_proper]] == false) {
+				// Check if student exist in Moodle
+                if ($studentusers[$row[$fremotestudent_proper]] == false) {
                     // couldn't find user, skip
-                    error_log("Warning: [" . $row[$fremoteobject_proper] . "] couldn't find object user --  skipping $key");
+                    error_log("Warning: [" . $row[$fremotestudent_proper] . "] couldn't find student user --  skipping $key");
                     continue;
                 }
 				
-				// Get the context of the object
-				$context = context_user::instance($objectusers[$row[$fremoteobject_proper]]);
+				// Get the context of the student
+				$context = context_user::instance($studentusers[$row[$fremotestudent_proper]]);
 				if ($verbose) {
-						mtrace("Information: [" . $row[$fremotesubject_proper] . "] assigning " . $row[$fremoterole] . " to remote user " . $row[$fremotesubject_proper]
-						   . " on " . $row[$fremoteobject_proper]);
+						mtrace("Information: [" . $row[$fremoteparent_proper] . "] assigning " . $row[$fremoterole] . " to remote user " . $row[$fremoteparent_proper]
+						   . " on " . $row[$fremotestudent_proper]);
 				}
 
-				// MOODLE 1.X => role_assign($roles[$row->{$fremoterole}]->id, $subjectusers[$row->{$fremotesubject}], 0, $context->id, 0, 0, 0, 'dbuserrel');
+				// MOODLE 1.X => role_assign($roles[$row->{$fremoterole}]->id, $parentusers[$row->{$fremoteparent}], 0, $context->id, 0, 0, 0, 'dbuserrel');
 				// MOODLE 2.X => role_assign($roleid, $userid, $contextid, $component = '', $itemid = 0, $timemodified = '')
 				// This way of role assignment using the component name means that we cannot manually unassign this from UI
 				//  We can only unassign using this same plugin. The unassign role statement is below and the same component name is used
 				//
-				role_assign($roles[$row[$fremoterole]]->id, $subjectusers[$row[$fremotesubject_proper]], $context->id, 'enrol_dbuserrel', 0, '');
+				role_assign($roles[$row[$fremoterole]]->id, $parentusers[$row[$fremoteparent_proper]], $context->id, 'enrol_dbuserrel', 0, '');
 
             }
 

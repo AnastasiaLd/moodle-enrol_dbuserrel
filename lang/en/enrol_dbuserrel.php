@@ -34,3 +34,5 @@ $string['parentrole'] = 'Role to assign';
 $string['parentrole_desc'] = 'Specify the role to assign';
 $string['currentacademicyear'] = 'Current academic year';
 $string['currentacademicyear_desc'] = 'Specify the current academic year (eg 2018/19)';
+/* ****** */
+$string['taskname'] = 'Assigning the parent to the student';

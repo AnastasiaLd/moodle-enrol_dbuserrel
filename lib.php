@@ -97,23 +97,34 @@ function setup_enrolments($verbose = false, &$user=null) {
      */
     $fremoteparent = strtolower($this->get_config('remoteparentuserfield'));
     $fremotestudent  = strtolower($this->get_config('remotestudentuserfield'));
-    $fremoterole    = strtolower($this->get_config('remoterolefield'));
+    $fremoterole    = 'parentrole';
+    $parentrole = strtolower($this->get_config('parentrole'));
+    $currentacademicyear = strtolower($this->get_config('currentacademicyear'));
     $dbtable        = $this->get_config('remoteenroltable');
 
 
+    /**
+     * Get all entries from source(remote) table
+     *
+     * Added temporary field as the desired parent role for schema matching between remote and local db
+     * Skip all rows where the academic year is not current
+     * Skip all rows where a parent has not yet been allocated to a student
+     *
+     */
 
-    // TODO: Ensure that specifying a user works correctly
-    if ($user) {
-        $parentfield = $extdb->quote($user->{$flocalparent});
-        $studentfield = $extdb->quote($user->{$flocalstudent});
-
-        $sql = "SELECT * FROM {$dbtable}
-            WHERE {$fremoteparent} = $parentfield
-            OR {$fremotestudent} = $studentfield";
-    } else {
-		// Get all entries from source(external) table
-        $sql = "SELECT * FROM {$dbtable}";
-    }
+    $sql = "SELECT
+                {$fremoteparent},
+                {$fremotestudent},
+                '{$parentrole}' AS $fremoterole
+            FROM
+                {$dbtable}
+            WHERE
+                ({$fremoteparent} = $parentfield OR {$fremotestudent} = $studentfield)
+                AND
+                  setid = '{$currentacademicyear}'
+                AND
+                  {$fremoteparent} != 'NOT ALLOCATED'";
+    mtrace($sql);
 
 	// Execute query to get entries from external DB
     if ($rs = $extdb->Execute($sql)) {

@@ -29,3 +29,8 @@ $string['pluginname_desc'] = 'You can use an external database (of nearly any ki
 $string['settingsheaderdb'] = 'External database connection';
 $string['remoteenroltable'] = 'Remote user enrolment table';
 $string['remoteenroltable_desc'] = 'Specify the name of the table that contains list of user enrolments. Empty means no user enrolment sync.';
+/* Custom fields */
+$string['parentrole'] = 'Role to assign';
+$string['parentrole_desc'] = 'Specify the role to assign';
+$string['currentacademicyear'] = 'Current academic year';
+$string['currentacademicyear_desc'] = 'Specify the current academic year (eg 2018/19)';

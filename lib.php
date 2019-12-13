@@ -119,9 +119,7 @@ function setup_enrolments($verbose = false, &$user=null) {
             FROM
                 {$dbtable}
             WHERE
-                  setid = '{$currentacademicyear}'
-                AND
-                  {$fremoteparent} != 'NOT ALLOCATED'";
+                  setid = '{$currentacademicyear}'";
     mtrace($sql);
 
 	// Execute query to get entries from external DB

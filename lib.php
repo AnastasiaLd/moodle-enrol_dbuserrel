@@ -119,7 +119,7 @@ function setup_enrolments($verbose = false, &$user=null) {
             FROM
                 {$dbtable}
             WHERE
-                  setid = '{$currentacademicyear}'";
+                  academic_year = '{$currentacademicyear}'";
     mtrace($sql);
 
 	// Execute query to get entries from external DB

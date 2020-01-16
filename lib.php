@@ -113,8 +113,8 @@ function setup_enrolments($verbose = false, &$user=null) {
      */
 
     $sql = "SELECT
-                {$fremoteparent},
-                {$fremotestudent},
+                LOWER({$fremoteparent}),
+                LOWER({$fremotestudent}),
                 '{$parentrole}' AS $fremoterole
             FROM
                 {$dbtable}

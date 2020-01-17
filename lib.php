@@ -113,8 +113,8 @@ function setup_enrolments($verbose = false, &$user=null) {
      */
 
     $sql = "SELECT
-                {$fremoteparent},
-                {$fremotestudent},
+                LOWER({$fremoteparent}) AS {$fremoteparent},
+                LOWER({$fremotestudent}) AS {$fremotestudent},
                 '{$parentrole}' AS $fremoterole
             FROM
                 {$dbtable}
@@ -273,7 +273,7 @@ function setup_enrolments($verbose = false, &$user=null) {
 
         /* Control the casing of the retrieved recordsets'fields from remote db */
 
-        define('ADODB_ASSOC_CASE', ADODB_ASSOC_CASE_LOWER);
+        define('ADODB_ASSOC_CASE', 0);
 
         require_once($CFG->libdir.'/adodb/adodb.inc.php');
 
